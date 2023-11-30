@@ -5,10 +5,6 @@
 
 using namespace std;
 
-#include <bits/stdc++.h>
-
-using namespace std;
-
 struct Node;
 
 bool equals(Node *n1, Node *n2);
