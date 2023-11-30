@@ -322,6 +322,10 @@ private:
     }
 };
 
+void printDashes(){
+    cout << "--------------------" << endl;
+}
+
 int main() {
     // Construct a suffix tree containing all suffixes of "bananabanaba$"
 
