@@ -8,7 +8,12 @@ using namespace std;
 #include <bits/stdc++.h>
 
 using namespace std;
+
 struct Node;
+
+bool equals(Node *n1, Node *n2);
+
+ostream &operator<<(ostream &out, Node *&n);
 
 struct node {
     Node *val;
@@ -19,12 +24,6 @@ struct node {
         next = nullptr;
     }
 };
-
-struct Node;
-
-bool equals(Node *n1, Node *n2);
-
-ostream &operator<<(ostream &out, Node *&n);
 
 class LinkedList {
 protected:
@@ -140,6 +139,34 @@ public:
         root->adj.print();
     }
 
+    ~SuffixTree() {
+        delete root;
+    }
+
+    bool Search(char *s) {
+        Node *curr = root;
+        for (int i = 0; i < strlen(s); i++) {
+            bool found = 0;
+            Node **arr = curr->adj.getArray();
+//            Node *response = curr->adj.getElement(n);
+//            if (response != nullptr) {
+//                curr = response;
+//            } else {
+//                return false;
+//            }
+            for (int j = 0; j < curr->adj.linkedListSize(); j++) {
+                if (word[arr[j]->suffNum] == s[i]) {
+                    found = true;
+                    curr = arr[j];
+                    break;
+                }
+            }
+            if (!found)
+                return false;
+        }
+        return true;
+    }
+
     char *substring(int start) {
         char *substr = new char[(size - start) + 1];
         strcpy(substr, word + start);
@@ -165,36 +192,8 @@ public:
         dfs(root);
     }
 
-    bool Search(string s) { // TODO change this string to char
-        Node *curr = root;
-        for (int i = 0; i < s.size(); i++) {
-            bool found = 0;
-            Node **arr = curr->adj.getArray();
-//            Node *response = curr->adj.getElement(n);
-//            if (response != nullptr) {
-//                curr = response;
-//            } else {
-//                return false;
-//            }
-            for (int j = 0; j < curr->adj.linkedListSize(); j++) {
-                if (word[arr[j]->suffNum] == s[i]) {
-                    found = true;
-                    curr = arr[j];
-                    break;
-                }
-            }
-            if (!found)
-                return false;
-        }
-        return true;
-    }
-
-    ~SuffixTree() {
-        delete root;
-    }
-
 private:
-    void insert(char s[]) {
+    void insert(char *s) {
         root = new Node();
         for (int i = 0; i < size; i++) {
             Node *curr = root;
@@ -234,17 +233,16 @@ private:
 int main() {
     // Construct a suffix tree containing all suffixes of "bananabanaba$"
 
-    //               0123456789012
+    //            0123456789012
     SuffixTree t("bananabanaba$");
 
     cout << t.Search("ana"); // Prints: 1 3 7
     cout << t.Search("naba"); // Prints: 4 8
     Node *n1 = new Node();
     n1->suffNum = 1;
-    cout << equals(n1, new Node(1));
-    cout << '\n';
+    cout << equals(n1, new Node(1)) << '\n';
+    cout << n1->suffNum << " " << (new Node(1))->suffNum << " " << endl;
 
-    cout << n1->suffNum << " " << (new Node(1))->suffNum << " ";
     // Add test cases here.
 
 //    t.printDfs();
