@@ -24,7 +24,7 @@ struct node {
 class LinkedList {
 protected:
     node *head;
-    node* tail;
+    node *tail;
     int size;
 public:
     LinkedList() {
@@ -37,13 +37,12 @@ public:
     }
 
     void insert(Node *val) {
-        node* temp = new node;
+        node *temp = new node;
         temp->val = val;
         temp->next = nullptr;
-        if(head == nullptr){
+        if (head == nullptr) {
             head = tail = temp;
-        }
-        else{
+        } else {
             tail->next = temp;
             tail = temp;
         }
@@ -62,6 +61,10 @@ public:
     }
 
     Node **getArray() {
+        if (size < 0) {
+            size = 0;
+            return new Node *[0];
+        }
         Node **arr = new Node *[size];
         int counter = 0;
         node *temp = head;
@@ -83,6 +86,8 @@ public:
             delete temp;
             size--;
         }
+        head = tail = nullptr;
+        size = 0;
     }
 
     void print() const {
@@ -112,7 +117,7 @@ struct Node {
 
     // Recursive function to remove nodes with a single child
     void removeSingleChildNodes() {
-        if (adj.linkedListSize() == 0){
+        if (adj.linkedListSize() == 0) {
             return;
         }
         if (adj.linkedListSize() == 1) {
@@ -124,8 +129,8 @@ struct Node {
 //            delete child;  // Delete the child node
             removeSingleChildNodes();  // Recursively remove from the updated current node
         } else {
-            Node** arr = adj.getArray();
-            for (int i = 0;i < adj.linkedListSize(); i++) {
+            Node **arr = adj.getArray();
+            for (int i = 0; i < adj.linkedListSize(); i++) {
                 arr[i]->removeSingleChildNodes();  // Recursively remove from each child
             }
         }
@@ -161,47 +166,9 @@ public:
         delete root;
     }
 
-    void Search(char *s, Node* n = nullptr, char* last = nullptr) {
-        if(n == nullptr) {
-            n = root;
-        }
-        if(n->leafSuffNum != -1){
-            cout << n->leafSuffNum << " ";
-            return;
-        }
-        Node *curr = n;
-        for (int i = 0; i < strlen(s); i++) {
-//            bool found = 0;
-            Node **arr = curr->adj.getArray();
-            for (int j = 0; j < curr->adj.linkedListSize(); j++) {
-                printCharArray(substring(arr[j]->suffNum));
-                int minSuffNum = getMinSuffNum(curr->adj);
 
-                if(last == nullptr) {
-                    if (isSubstrExist(substring(arr[j]->suffNum),s)) {
-                        Search(s, arr[j], substring(arr[j]->suffNum, minSuffNum));
-                    }
-                } else {
-
-                    char* fullSubstr = last;
-                    strcat(fullSubstr, substring(arr[j]->suffNum));
-
-                    char* newLast = last;
-                    strcat(newLast, substring(arr[j]->suffNum, minSuffNum));
-                    if (isSubstrExist(fullSubstr, s)) {
-                        Search(s, arr[j], newLast);
-                    }
-                }
-//                if (word[arr[j]->suffNum] == s[i]) {
-//                    found = true;
-//                    curr = arr[j];
-//                    break;
-//                }
-            }
-//            if (!found)
-//                return;
-        }
-        return;
+    void Search(char *str) {
+        printMatching(str, root, "");
     }
 
     char *substring(int start) {
@@ -210,11 +177,37 @@ public:
         return substr;
     }
 
-    char *substring(int start, int end) {   //TODO not working
-        char *substr = new char[(size - start) + 1];
-//        strncpy(substr, word + start, );
+    char *substring(int start, int end) {
+        int substringLength = end - start;
+        char *substr = new char[substringLength + 1];
+        strncpy(substr, word + start, substringLength);
+        substr[substringLength] = '\0';
         return substr;
     }
+
+    bool contains(char *query, char *sub) {
+        if (strlen(sub) > strlen(query))
+            return false;
+        for (int i = 0; i < strlen(sub); ++i) {
+            if (query[i] != sub[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    char* merge(char* str1, char* str2) {
+        int len1 = strlen(str1);
+        int len2 = strlen(str2);
+
+        char* result = new char[len1 + len2 + 1];
+
+        strcpy(result, str1);
+        strcat(result, str2);
+
+        return result;
+    }
+
 
     void printCharArray(char arr[]) {
         for (int i = 0; i < strlen(arr); ++i) {
@@ -233,37 +226,41 @@ public:
         }
     }
 
-    void printLeavesFrom(Node *node) {
-        Node **arr = node->adj.getArray();
-        for (int i = 0; i < node->adj.linkedListSize(); i++) {
-            if(arr[i]->leafSuffNum != -1) {
-                cout << arr[i]->leafSuffNum << " ";
-            }
-            dfs(arr[i]);
-            cout << '\n';
-        }
-    }
-
     void printDfs() {
         dfs(root);
     }
 
+    void printLeavesFrom(Node *node) {
+        Node **arr = node->adj.getArray();
+        for (int i = 0; i < node->adj.linkedListSize(); i++) {
+            if (arr[i]->leafSuffNum != -1) {
+                cout << arr[i]->leafSuffNum << " ";
+            }
+            printLeavesFrom(arr[i]);
+//            cout << '\n';
+        }
+    }
+
 private:
-    int getMinSuffNum(LinkedList adj){
-        Node** arr = adj.getArray();
+    int getMinSuffNum(LinkedList adj) {
+        Node **arr = adj.getArray();
         int ret = this->size;
-        for(int i = 0; i < adj.linkedListSize(); i++){
+        for (int i = 0; i < adj.linkedListSize(); i++) {
             ret = min(arr[i]->suffNum, ret);
         }
         return ret;
     }
-    static bool isSubstrExist(const char* s1, char* s2){
-        for(int i = 0; i < strlen(s2); i++){
-            if(s1[i] != s2[i])
+
+    static bool isSubstrExist(const char *s1, char *s2) {
+        if (strlen(s2) > strlen(s1))
+            return false;
+        for (int i = 0; i < strlen(s2); i++) {
+            if (s1[i] != s2[i])
                 return false;
         }
         return true;
     }
+
     void insert(char *s) {
         root = new Node();
         for (int i = 0; i < size; i++) {
@@ -314,8 +311,7 @@ int main() {
 //    t.Search("naba"); // Prints: 4 8
 
     // Add test cases here.
-//    SuffixTree t("baa$");
-
+//    SuffixTree t("banana$");
 //    t.printDfs();
 
     return 0;
