@@ -32,9 +32,9 @@ public:
         size = 0;
     }
 
-    ~LinkedList() {
-        clear();
-    }
+//    ~LinkedList() {
+//        clear();
+//    }
 
     void insert(Node *val) {
         node *temp = new node;
@@ -66,10 +66,10 @@ public:
             return new Node *[0];
         }
         Node **arr = new Node *[size];
-        int counter = 0;
+//        int counter = 0;
         node *temp = head;
-        while (temp != nullptr) {
-            arr[counter++] = temp->val;
+        for (int i = 0; i < size; i++) {
+            arr[i] = temp->val;
             temp = temp->next;
         }
         return arr;
@@ -83,7 +83,7 @@ public:
         while (head != nullptr) {
             node *temp = head;
             head = head->next;
-            delete temp;
+//            delete temp;
             size--;
         }
         head = tail = nullptr;
@@ -115,7 +115,6 @@ struct Node {
         suffNum = num;
     }
 
-    // Recursive function to remove nodes with a single child
     void removeSingleChildNodes() {
         if (adj.linkedListSize() == 0) {
             return;
@@ -131,7 +130,7 @@ struct Node {
         } else {
             Node **arr = adj.getArray();
             for (int i = 0; i < adj.linkedListSize(); i++) {
-                arr[i]->removeSingleChildNodes();  // Recursively remove from each child
+                arr[i]->removeSingleChildNodes();
             }
         }
     }
@@ -159,7 +158,6 @@ public:
         strcpy(word, s);
 
         insert(s);
-//        root->adj.print();
     }
 
     ~SuffixTree() {
@@ -169,6 +167,26 @@ public:
 
     void Search(char *str) {
         printMatching(str, root, "");
+    }
+
+    void printMatching(char *str, Node *n, char *last) {
+        if (contains(last, str)) {
+            printLeavesFrom(n);
+            return;
+        }
+        if (n->leafSuffNum != -1) {
+            return;
+        }
+        Node *curr = n;
+        Node **arr = curr->adj.getArray();
+        for (int i = 0; i < curr->adj.linkedListSize(); i++) {
+            if (contains(merge(last, substring(arr[i]->suffNum)), str)) {
+                int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
+                char* newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
+                printMatching(str, arr[i], newLast);
+                break;
+            }
+        }
     }
 
     char *substring(int start) {
@@ -219,7 +237,8 @@ public:
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
             cout << arr[i]->suffNum << " ";
-            if(arr[i]->leafSuffNum != -1)
+//            cout << "size: " << arr[i]->adj.linkedListSize() << " ";
+            if (arr[i]->leafSuffNum != -1)
                 cout << arr[i]->leafSuffNum << " ";
             dfs(arr[i]);
             cout << '\n';
@@ -231,6 +250,11 @@ public:
     }
 
     void printLeavesFrom(Node *node) {
+        if (node->leafSuffNum != -1) {
+            cout << node->leafSuffNum << " ";
+            return;
+        }
+
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
             if (arr[i]->leafSuffNum != -1) {
@@ -307,7 +331,7 @@ int main() {
     SuffixTree t("bananabanaba$");
 
     t.Search("ana"); // Prints: 1 3 7
-    cout << '\n';
+//    cout << '\n';
 //    t.Search("naba"); // Prints: 4 8
 
     // Add test cases here.
