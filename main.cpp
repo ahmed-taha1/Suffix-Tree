@@ -64,7 +64,7 @@ public:
             }
             temp = temp->next;
         }
-        return nullptr;
+        return NULL;
     }
 
     Node **getArray() {
@@ -137,6 +137,7 @@ public:
         strcpy(word, s);
 
         insert(s);
+        root->adj.print();
     }
 
     char *substring(int start) {
@@ -168,7 +169,7 @@ public:
         Node *curr = root;
         for (int i = 0; i < s.size(); i++) {
             bool found = 0;
-            Node ** arr = curr->adj.getArray();
+            Node **arr = curr->adj.getArray();
 //            Node *response = curr->adj.getElement(n);
 //            if (response != nullptr) {
 //                curr = response;
@@ -236,11 +237,84 @@ int main() {
     //               0123456789012
     SuffixTree t("bananabanaba$");
 
-    cout << t.Search("a$"); // Prints: 1 3 7
+    cout << t.Search("ana"); // Prints: 1 3 7
     cout << t.Search("naba"); // Prints: 4 8
+    Node *n1 = new Node();
+    n1->suffNum = 1;
+    cout << equals(n1, new Node(1));
+    cout << '\n';
+
+    cout << n1->suffNum << " " << (new Node(1))->suffNum << " ";
     // Add test cases here.
 
 //    t.printDfs();
 
     return 0;
 }
+//0 1 2 12
+//000 1 2 3 4 5 6 7 8 9 10 11 0
+//
+//
+//
+//
+//
+//
+//
+//
+//10 11 6
+//
+//
+//
+//
+//10
+//
+//
+//1 2 3 4 5 6 7 8 9 10 11 1
+//
+//
+//
+//
+//
+//
+//
+//
+//6 7 8 9 10 11 3
+//
+//
+//
+//
+//7
+//
+//
+//
+//
+//6 7 8 9 10 11 5
+//
+//
+//
+//
+//9
+//
+//
+//11
+//
+//2 3 4 5 6 7 8 9 10 11 2
+//
+//
+//
+//
+//
+//
+//
+//
+//6 7 8 9 10 11 4
+//
+//
+//
+//
+//8
+//
+//
+//
+//
+//12
