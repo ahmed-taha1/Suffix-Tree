@@ -66,7 +66,6 @@ public:
             return new Node *[0];
         }
         Node **arr = new Node *[size];
-//        int counter = 0;
         node *temp = head;
         for (int i = 0; i < size; i++) {
             arr[i] = temp->val;
@@ -165,11 +164,15 @@ public:
 
 
     void Search(char *str) {
-        printMatching(str, root, "");
+        bool found = 0;
+        printMatching(str, root, "", found);
+        if(!found)
+            cout << "Not found";
     }
 
-    void printMatching(char *str, Node *n, char *last) {
+    void printMatching(char *str, Node *n, char *last, bool& found) {
         if (contains(last, str)) {
+            found = 1;
             printLeavesFrom(n);
             return;
         }
@@ -179,10 +182,10 @@ public:
         Node *curr = n;
         Node **arr = curr->adj.getArray();
         for (int i = 0; i < curr->adj.linkedListSize(); i++) {
-            if (contains(merge(last, substring(arr[i]->suffNum)), str)) {
-                int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
-                char* newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
-                printMatching(str, arr[i], newLast);
+            int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
+            char* newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
+            if (contains(newLast, str) || contains(str, newLast)) {
+                printMatching(str, arr[i], newLast, found);
                 break;
             }
         }
@@ -292,10 +295,6 @@ private:
             for (int j = i; j < size; j++) {
                 bool found = 0;
                 Node **arr = curr->adj.getArray();
-//                Node *response = curr->adj.getElement(new Node(j)); // get array
-//                if (response != NULL) {
-//                    curr = response;
-//                }
                 for (int k = 0; k < curr->adj.linkedListSize(); k++) {
                     if (s[j] == s[arr[k]->suffNum]) {
                         found = 1;
@@ -330,79 +329,13 @@ int main() {
     SuffixTree t("bananabanaba$");
 
     t.Search("ana"); // Prints: 1 3 7
-//    cout << '\n';
-//    t.Search("naba"); // Prints: 4 8
+    cout << '\n';
+    t.Search("naba"); // Prints: 4 8
 
     // Add test cases here.
-//    SuffixTree t("banana$");
+    cout << "\n";
+    t.Search("kbanana$");
 //    t.printDfs();
 
     return 0;
 }
-//0 1 2 12
-//000 1 2 3 4 5 6 7 8 9 10 11 0
-//
-//
-//
-//
-//
-//
-//
-//
-//10 11 6
-//
-//
-//
-//
-//10
-//
-//
-//1 2 3 4 5 6 7 8 9 10 11 1
-//
-//
-//
-//
-//
-//
-//
-//
-//6 7 8 9 10 11 3
-//
-//
-//
-//
-//7
-//
-//
-//
-//
-//6 7 8 9 10 11 5
-//
-//
-//
-//
-//9
-//
-//
-//11
-//
-//2 3 4 5 6 7 8 9 10 11 2
-//
-//
-//
-//
-//
-//
-//
-//
-//6 7 8 9 10 11 4
-//
-//
-//
-//
-//8
-//
-//
-//
-//
-//12
