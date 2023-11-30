@@ -38,13 +38,15 @@ class Vector{
 
 struct Edge;
 
-
-struct Node{
-    Vector<Edge> adj;
-    int suffNum;
-    Node(){
-        suffNum = -1;
+    void print() const {
+        node *temp = head;
+        while (temp != nullptr) {
+            cout << temp->val << " ";
+            temp = temp->next;
+        }
+        cout << endl;
     }
+
 };
 
 struct  Edge{
