@@ -24,6 +24,7 @@ struct node {
 class LinkedList {
 protected:
     node *head;
+    node* tail;
     int size;
 public:
     LinkedList() {
@@ -36,17 +37,15 @@ public:
     }
 
     void insert(Node *val) {
-        node *temp = new node();
+        node* temp = new node;
         temp->val = val;
         temp->next = nullptr;
-        if (head == nullptr) {
-            head = temp;
-        } else {
-            node *temp2 = head;
-            while (temp2->next != nullptr) {
-                temp2 = temp2->next;
-            }
-            temp2->next = temp;
+        if(head == nullptr){
+            head = tail = temp;
+        }
+        else{
+            tail->next = temp;
+            tail = temp;
         }
         size++;
     }
@@ -99,10 +98,12 @@ public:
 
 struct Node {
     LinkedList adj;
+    int leafSuffNum;
     int suffNum;
 
     Node() {
         suffNum = -1;
+        leafSuffNum = -1;
     }
 
     Node(int num) {
@@ -214,8 +215,9 @@ private:
                     curr->adj.insert(node);
                     curr = node;
                 }
+
                 if (j == size - 1) {
-                    curr->suffNum = i;
+                    curr->leafSuffNum = i;
                 }
             }
         }
@@ -234,14 +236,11 @@ int main() {
 
     cout << t.Search("ana"); // Prints: 1 3 7
     cout << t.Search("naba"); // Prints: 4 8
-    Node *n1 = new Node();
-    n1->suffNum = 1;
-    cout << equals(n1, new Node(1)) << '\n';
-    cout << n1->suffNum << " " << (new Node(1))->suffNum << " " << endl;
 
     // Add test cases here.
+//    SuffixTree t("baa$");
 
-//    t.printDfs();
+    t.printDfs();
 
     return 0;
 }
