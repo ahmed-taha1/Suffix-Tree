@@ -161,23 +161,26 @@ public:
         delete root;
     }
 
-    bool Search(char *s) {
-        Node *curr = root;
+    void Search(char *s, Node* n = nullptr) {
+        if(n == nullptr)
+            n = root;
+        if(n->leafSuffNum != -1){
+            cout << n->leafSuffNum << " ";
+            return;
+        }
+        Node *curr = n;
         for (int i = 0; i < strlen(s); i++) {
-            bool found = 0;
+//            bool found = 0;
             Node **arr = curr->adj.getArray();
-//            Node *response = curr->adj.getElement(n);
-//            if (response != nullptr) {
-//                curr = response;
-//            } else {
-//                return false;
-//            }
             for (int j = 0; j < curr->adj.linkedListSize(); j++) {
-                if (word[arr[j]->suffNum] == s[i]) {
-                    found = true;
-                    curr = arr[j];
-                    break;
+                if(strstr(substring(arr[j]->suffNum), s) != NULL){
+                    Search(s, curr);
                 }
+//                if (word[arr[j]->suffNum] == s[i]) {
+//                    found = true;
+//                    curr = arr[j];
+//                    break;
+//                }
             }
 //            if (!found)
 //                return;
@@ -276,7 +279,7 @@ int main() {
     // Add test cases here.
 //    SuffixTree t("baa$");
 
-    t.printDfs();
+//    t.printDfs();
 
     return 0;
 }
