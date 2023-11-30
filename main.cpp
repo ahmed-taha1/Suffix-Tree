@@ -118,7 +118,7 @@ struct Node {
         if (adj.linkedListSize() == 1) {
             Node *child = adj.getArray()[0];
             adj.clear();  // Clear the adjacency list
-            suffNum = child->suffNum;  // Update the current node's suffNum
+//            suffNum = child->suffNum;  // Update the current node's suffNum
             leafSuffNum = child->leafSuffNum; // Update the current node's leafSuffNum
             this->adj = child->adj;  // Move child's adjacency list to the current node
 //            delete child;  // Delete the child node
@@ -179,10 +179,10 @@ public:
                     break;
                 }
             }
-            if (!found)
-                return false;
+//            if (!found)
+//                return;
         }
-        return true;
+        return;
     }
 
     char *substring(int start) {
@@ -203,6 +203,17 @@ public:
             cout << arr[i]->suffNum << " ";
             if(arr[i]->leafSuffNum != -1)
                 cout << arr[i]->leafSuffNum << " ";
+            dfs(arr[i]);
+            cout << '\n';
+        }
+    }
+
+    void printLeavesFrom(Node *node) {
+        Node **arr = node->adj.getArray();
+        for (int i = 0; i < node->adj.linkedListSize(); i++) {
+            if(arr[i]->leafSuffNum != -1) {
+                cout << arr[i]->leafSuffNum << " ";
+            }
             dfs(arr[i]);
             cout << '\n';
         }
@@ -258,8 +269,9 @@ int main() {
     //            0123456789012
     SuffixTree t("bananabanaba$");
 
-    cout << t.Search("ana"); // Prints: 1 3 7
-    cout << t.Search("naba"); // Prints: 4 8
+    t.Search("ana"); // Prints: 1 3 7
+    cout << '\n';
+    t.Search("naba"); // Prints: 4 8
 
     // Add test cases here.
 //    SuffixTree t("baa$");
