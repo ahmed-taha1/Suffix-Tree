@@ -121,12 +121,11 @@ struct Node {
         }
         if (adj.linkedListSize() == 1) {
             Node *child = adj.getArray()[0];
-            adj.clear();  // Clear the adjacency list
-//            suffNum = child->suffNum;  // Update the current node's suffNum
-            leafSuffNum = child->leafSuffNum; // Update the current node's leafSuffNum
-            this->adj = child->adj;  // Move child's adjacency list to the current node
-//            delete child;  // Delete the child node
-            removeSingleChildNodes();  // Recursively remove from the updated current node
+            adj.clear();
+            leafSuffNum = child->leafSuffNum;
+            this->adj = child->adj;
+            delete child;
+            removeSingleChildNodes();
         } else {
             Node **arr = adj.getArray();
             for (int i = 0; i < adj.linkedListSize(); i++) {
