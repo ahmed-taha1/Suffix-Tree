@@ -28,7 +28,7 @@ protected:
     int size;
 public:
     LinkedList() {
-        head = nullptr;
+        head = tail = nullptr;
         size = 0;
     }
 
@@ -109,6 +109,27 @@ struct Node {
     Node(int num) {
         suffNum = num;
     }
+
+    // Recursive function to remove nodes with a single child
+    void removeSingleChildNodes() {
+        if (adj.linkedListSize() == 0){
+            return;
+        }
+        if (adj.linkedListSize() == 1) {
+            Node *child = adj.getArray()[0];
+            adj.clear();  // Clear the adjacency list
+            suffNum = child->suffNum;  // Update the current node's suffNum
+            leafSuffNum = child->leafSuffNum; // Update the current node's leafSuffNum
+            this->adj = child->adj;  // Move child's adjacency list to the current node
+//            delete child;  // Delete the child node
+            removeSingleChildNodes();  // Recursively remove from the updated current node
+        } else {
+            Node** arr = adj.getArray();
+            for (int i = 0;i < adj.linkedListSize(); i++) {
+                arr[i]->removeSingleChildNodes();  // Recursively remove from each child
+            }
+        }
+    }
 };
 
 ostream &operator<<(ostream &out, Node *&n) {
@@ -133,7 +154,7 @@ public:
         strcpy(word, s);
 
         insert(s);
-        root->adj.print();
+//        root->adj.print();
     }
 
     ~SuffixTree() {
@@ -180,6 +201,8 @@ public:
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
             cout << arr[i]->suffNum << " ";
+            if(arr[i]->leafSuffNum != -1)
+                cout << arr[i]->leafSuffNum << " ";
             dfs(arr[i]);
             cout << '\n';
         }
@@ -224,6 +247,7 @@ private:
 
         // delete internal nodes that have only one child
 
+        root->removeSingleChildNodes();
 
     }
 };
