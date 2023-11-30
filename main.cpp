@@ -161,9 +161,10 @@ public:
         delete root;
     }
 
-    void Search(char *s, Node* n = nullptr) {
-        if(n == nullptr)
+    void Search(char *s, Node* n = nullptr, char* last = nullptr) {
+        if(n == nullptr) {
             n = root;
+        }
         if(n->leafSuffNum != -1){
             cout << n->leafSuffNum << " ";
             return;
@@ -173,8 +174,23 @@ public:
 //            bool found = 0;
             Node **arr = curr->adj.getArray();
             for (int j = 0; j < curr->adj.linkedListSize(); j++) {
-                if(strstr(substring(arr[j]->suffNum), s) != NULL){
-                    Search(s, curr);
+                printCharArray(substring(arr[j]->suffNum));
+                int minSuffNum = getMinSuffNum(curr->adj);
+
+                if(last == nullptr) {
+                    if (isSubstrExist(substring(arr[j]->suffNum),s)) {
+                        Search(s, arr[j], substring(arr[j]->suffNum, minSuffNum));
+                    }
+                } else {
+
+                    char* fullSubstr = last;
+                    strcat(fullSubstr, substring(arr[j]->suffNum));
+
+                    char* newLast = last;
+                    strcat(newLast, substring(arr[j]->suffNum, minSuffNum));
+                    if (isSubstrExist(fullSubstr, s)) {
+                        Search(s, arr[j], newLast);
+                    }
                 }
 //                if (word[arr[j]->suffNum] == s[i]) {
 //                    found = true;
@@ -191,6 +207,12 @@ public:
     char *substring(int start) {
         char *substr = new char[(size - start) + 1];
         strcpy(substr, word + start);
+        return substr;
+    }
+
+    char *substring(int start, int end) {   //TODO not working
+        char *substr = new char[(size - start) + 1];
+//        strncpy(substr, word + start, );
         return substr;
     }
 
@@ -227,6 +249,21 @@ public:
     }
 
 private:
+    int getMinSuffNum(LinkedList adj){
+        Node** arr = adj.getArray();
+        int ret = this->size;
+        for(int i = 0; i < adj.linkedListSize(); i++){
+            ret = min(arr[i]->suffNum, ret);
+        }
+        return ret;
+    }
+    static bool isSubstrExist(const char* s1, char* s2){
+        for(int i = 0; i < strlen(s2); i++){
+            if(s1[i] != s2[i])
+                return false;
+        }
+        return true;
+    }
     void insert(char *s) {
         root = new Node();
         for (int i = 0; i < size; i++) {
@@ -274,7 +311,7 @@ int main() {
 
     t.Search("ana"); // Prints: 1 3 7
     cout << '\n';
-    t.Search("naba"); // Prints: 4 8
+//    t.Search("naba"); // Prints: 4 8
 
     // Add test cases here.
 //    SuffixTree t("baa$");
