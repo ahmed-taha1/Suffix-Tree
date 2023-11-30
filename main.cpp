@@ -259,11 +259,7 @@ public:
 
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
-            if (arr[i]->leafSuffNum != -1) {
-                cout << arr[i]->leafSuffNum << " ";
-            }
             printLeavesFrom(arr[i]);
-//            cout << '\n';
         }
     }
 
@@ -339,6 +335,25 @@ int main() {
     // Add test cases here.
     cout << "\n";
     t.Search("kbanana$");
+    cout << '\n';
+    printDashes();
+
+    SuffixTree t2("AhmedTaha$");
+    t2.Search("Taha");
+    cout << '\n';
+    t2.Search("Tahb");
+    cout << '\n';
+    printDashes();
+
+    SuffixTree t3("YoussefMoataz$");
+    t3.Search("ssef");
+    cout << '\n';
+    t3.Search("Moataz");
+    cout << '\n';
+    t3.Search("Motaz");
+    cout << '\n';
+    printDashes();
+
 //    t.printDfs();
 
     return 0;
