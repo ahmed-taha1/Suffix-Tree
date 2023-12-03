@@ -11,11 +11,11 @@ bool equals(Node *n1, Node *n2);
 
 ostream &operator<<(ostream &out, Node *&n);
 
-struct node {
+struct LinkedListNode {
     Node *val;
-    node *next;
+    LinkedListNode *next;
 
-    node() {
+    LinkedListNode() {
         val = 0;
         next = nullptr;
     }
@@ -23,8 +23,8 @@ struct node {
 
 class LinkedList {
 protected:
-    node *head;
-    node *tail;
+    LinkedListNode *head;
+    LinkedListNode *tail;
     int size;
 public:
     LinkedList() {
@@ -37,7 +37,7 @@ public:
 //    }
 
     void insert(Node *val) {
-        node *temp = new node;
+        LinkedListNode *temp = new LinkedListNode;
         temp->val = val;
         temp->next = nullptr;
         if (head == nullptr) {
@@ -50,7 +50,7 @@ public:
     }
 
     Node *getElement(Node *&val) {
-        node *temp = head;
+        LinkedListNode *temp = head;
         while (temp != nullptr) {
             if (equals(temp->val, val)) {
                 return temp->val;
@@ -66,7 +66,7 @@ public:
             return new Node *[0];
         }
         Node **arr = new Node *[size];
-        node *temp = head;
+        LinkedListNode *temp = head;
         for (int i = 0; i < size; i++) {
             arr[i] = temp->val;
             temp = temp->next;
@@ -80,7 +80,7 @@ public:
 
     void clear() {
         while (head != nullptr) {
-            node *temp = head;
+            LinkedListNode *temp = head;
             head = head->next;
 //            delete temp;
             size--;
@@ -90,7 +90,7 @@ public:
     }
 
     void print() const {
-        node *temp = head;
+        LinkedListNode *temp = head;
         while (temp != nullptr) {
             cout << temp->val << " ";
             temp = temp->next;
