@@ -166,11 +166,11 @@ public:
     void Search(char *str) {
         bool found = 0;
         printMatching(str, root, "", found);
-        if(!found)
+        if (!found)
             cout << "Not found";
     }
 
-    void printMatching(char *str, Node *n, char *last, bool& found) {
+    void printMatching(char *str, Node *n, char *last, bool &found) {
         if (contains(last, str)) {
             found = 1;
             printLeavesFrom(n);
@@ -183,7 +183,7 @@ public:
         Node **arr = curr->adj.getArray();
         for (int i = 0; i < curr->adj.linkedListSize(); i++) {
             int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
-            char* newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
+            char *newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
             if (contains(newLast, str) || contains(str, newLast)) {
                 printMatching(str, arr[i], newLast, found);
                 break;
@@ -216,11 +216,11 @@ public:
         return true;
     }
 
-    char* merge(char* str1, char* str2) {
+    char *merge(char *str1, char *str2) {
         int len1 = strlen(str1);
         int len2 = strlen(str2);
 
-        char* result = new char[len1 + len2 + 1];
+        char *result = new char[len1 + len2 + 1];
 
         strcpy(result, str1);
         strcat(result, str2);
@@ -228,6 +228,14 @@ public:
         return result;
     }
 
+    int getMaxCommonPrefixLength(char *str1, char *str2) {
+        for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i) {
+            if (str1[i] != str2[i]) {
+                return i;
+            }
+        }
+        return 0;
+    }
 
     void printCharArray(char arr[]) {
         for (int i = 0; i < strlen(arr); ++i) {
@@ -286,39 +294,64 @@ private:
     void insert(char *s) {
         root = new Node();
         for (int i = 0; i < size; i++) {
-            Node *curr = root;
-
-            for (int j = i; j < size; j++) {
-                bool found = 0;
-                Node **arr = curr->adj.getArray();
-                for (int k = 0; k < curr->adj.linkedListSize(); k++) {
-                    if (s[j] == s[arr[k]->suffNum]) {
-                        found = 1;
-                        curr = arr[k];
-                        break;
-                    }
-                }
-                if (!found) {
-                    Node *node = new Node();
-                    node->suffNum = j;
-                    curr->adj.insert(node);
-                    curr = node;
-                }
-
-                if (j == size - 1) {
-                    curr->leafSuffNum = i;
+            char *currSuffix = substring(i);
+            Node **arr = root->adj.getArray();
+            bool found = false;
+            for (int j = 0; j < root->adj.linkedListSize(); j++) {
+                char *currBranchSuffix = substring(arr[i]->suffNum);
+                int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, currBranchSuffix);
+                if(maxCommonPrefixLength != 0){
+                    found = true;
+//                    int oldLeafSuffixNum =
+                    //*********//
+                    break;
                 }
             }
+//            if (!found) {
+//                Node *node = new Node();
+//                node->suffNum = j;
+//                curr->adj.insert(node);
+//                curr = node;
+//            }
         }
-
-        // delete internal nodes that have only one child
-
-        root->removeSingleChildNodes();
-
     }
+
+//    void insert(char *s) {
+//        root = new Node();
+//        for (int i = 0; i < size; i++) {
+//            Node *curr = root;
+//
+//            for (int j = i; j < size; j++) {
+//                bool found = 0;
+//                Node **arr = curr->adj.getArray();
+//                for (int k = 0; k < curr->adj.linkedListSize(); k++) {
+//                    if (s[j] == s[arr[k]->suffNum]) {
+//                        found = 1;
+//                        curr = arr[k];
+//                        break;
+//                    }
+//                }
+//                if (!found) {
+//                    Node *node = new Node();
+//                    node->suffNum = j;
+//                    curr->adj.insert(node);
+//                    curr = node;
+//                }
+//
+//                if (j == size - 1) {
+//                    curr->leafSuffNum = i;
+//                }
+//            }
+//        }
+//
+//        // delete internal nodes that have only one child
+//
+//        root->removeSingleChildNodes();
+//
+//    }
 };
 
-void printDashes(){
+void printDashes() {
     cout << "--------------------" << endl;
 }
 
@@ -326,33 +359,35 @@ int main() {
     // Construct a suffix tree containing all suffixes of "bananabanaba$"
 
     //            0123456789012
-    SuffixTree t("bananabanaba$");
-
-    t.Search("ana"); // Prints: 1 3 7
-    cout << '\n';
-    t.Search("naba"); // Prints: 4 8
-
-    // Add test cases here.
-    cout << "\n";
-    t.Search("kbanana$");
-    cout << '\n';
-    printDashes();
-
-    SuffixTree t2("AhmedTaha$");
-    t2.Search("Taha");
-    cout << '\n';
-    t2.Search("Tahb");
-    cout << '\n';
-    printDashes();
-
-    SuffixTree t3("YoussefMoataz$");
-    t3.Search("ssef");
-    cout << '\n';
-    t3.Search("Moataz");
-    cout << '\n';
-    t3.Search("Motaz");
-    cout << '\n';
-    printDashes();
+//    SuffixTree t("bananabanaba$");
+//
+//    t.Search("ana"); // Prints: 1 3 7
+//    cout << '\n';
+//    t.Search("naba"); // Prints: 4 8
+//
+//    // Add test cases here.
+//    cout << "\n";
+//    t.Search("kbanana$"); // NF
+//    cout << '\n';
+//    printDashes();
+//
+//    SuffixTree t2("AhmedTaha$");
+//    t2.Search("Taha"); // 5
+//    cout << '\n';
+//    t2.Search("Tahb"); // NF
+//    cout << '\n';
+//    t2.Search("a"); // 6 8
+//    cout << '\n';
+//    printDashes();
+//
+//    SuffixTree t3("YoussefMoataz$");
+//    t3.Search("ssef"); // 3
+//    cout << '\n';
+//    t3.Search("Moataz"); // 7
+//    cout << '\n';
+//    t3.Search("Motaz"); // Nf
+//    cout << '\n';
+//    printDashes();
 
 //    t.printDfs();
 
