@@ -295,24 +295,53 @@ private:
         root = new Node();
         for (int i = 0; i < size; i++) {
             char *currSuffix = substring(i);
-            Node **arr = root->adj.getArray();
-            bool found = false;
-            for (int j = 0; j < root->adj.linkedListSize(); j++) {
-                char *currBranchSuffix = substring(arr[i]->suffNum);
-                int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, currBranchSuffix);
-                if(maxCommonPrefixLength != 0){
-                    found = true;
-//                    int oldLeafSuffixNum =
-                    //*********//
-                    break;
+
+            Node* curr = getMaxCommonPrefixLengthNode(root, "", 0, currSuffix);
+            int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, mxLastReached);
+
+            // if the node is leaf
+            if(maxCommonPrefixLength == 0){
+                Node* n1 = new Node();
+                n1->leafSuffNum = i;
+                n1->suffNum = maxCommonPrefixLength + i;
+                curr->leafSuffNum = -1;
+                curr->adj.insert(n1);
+
+            }
+
+            else if(curr->adj.linkedListSize() == 0){
+                Node* n1 = new Node();
+                Node* n2 = new Node();
+                n1->leafSuffNum = curr->leafSuffNum;
+                n2->leafSuffNum = i;
+
+                n1->suffNum = n1->leafSuffNum + maxCommonPrefixLength;
+                n2->suffNum = maxCommonPrefixLength + i;
+
+                curr->leafSuffNum = -1;
+                curr->adj.insert(n1);
+                curr->adj.insert(n2);
+            }
+
+            else{
+                if(maxCommonPrefixLength < getMinSuffNum(curr->adj) - curr->suffNum){   // TODO check if it gives negative values
+                    Node* oldSubTree = new Node();
+                    oldSubTree->adj = LinkedList(curr->adj);
+                    curr->adj.clear();
+                    oldSubTree->suffNum = maxCommonPrefixLength + curr->suffNum;
+
+                    // mabye deleted
+                    curr->leafSuffNum = -1;
+                    oldSubTree->leafSuffNum = -1;
+
+                    Node* n = new Node();
+                    n->suffNum = i + maxCommonPrefixLength;
+                    n->leafSuffNum = i;
+
+                    curr->adj.insert(n);
+                    curr->adj.insert(oldSubTree);
                 }
             }
-//            if (!found) {
-//                Node *node = new Node();
-//                node->suffNum = j;
-//                curr->adj.insert(node);
-//                curr = node;
-//            }
         }
     }
 
@@ -359,35 +388,34 @@ int main() {
     // Construct a suffix tree containing all suffixes of "bananabanaba$"
 
     //            0123456789012
-//    SuffixTree t("bananabanaba$");
-//
-//    t.Search("ana"); // Prints: 1 3 7
-//    cout << '\n';
-//    t.Search("naba"); // Prints: 4 8
-//
-//    // Add test cases here.
-//    cout << "\n";
-//    t.Search("kbanana$"); // NF
-//    cout << '\n';
-//    printDashes();
-//
-//    SuffixTree t2("AhmedTaha$");
-//    t2.Search("Taha"); // 5
-//    cout << '\n';
-//    t2.Search("Tahb"); // NF
-//    cout << '\n';
-//    t2.Search("a"); // 6 8
-//    cout << '\n';
-//    printDashes();
-//
-//    SuffixTree t3("YoussefMoataz$");
-//    t3.Search("ssef"); // 3
-//    cout << '\n';
-//    t3.Search("Moataz"); // 7
-//    cout << '\n';
-//    t3.Search("Motaz"); // Nf
-//    cout << '\n';
-//    printDashes();
+    SuffixTree t("bananabanaba$");
+    t.Search("ana"); // Prints: 1 3 7
+    cout << '\n';
+    t.Search("naba"); // Prints: 4 8
+
+    // Add test cases here.
+    cout << "\n";
+    t.Search("kbanana$"); // NF
+    cout << '\n';
+    printDashes();
+
+    SuffixTree t2("AhmedTaha$");
+    t2.Search("Taha"); // 5
+    cout << '\n';
+    t2.Search("Tahb"); // NF
+    cout << '\n';
+    t2.Search("a"); // 6 8
+    cout << '\n';
+    printDashes();
+
+    SuffixTree t3("YoussefMoataz$");
+    t3.Search("ssef"); // 3
+    cout << '\n';
+    t3.Search("Moataz"); // 7
+    cout << '\n';
+    t3.Search("Motaz"); // NF
+    cout << '\n';
+    printDashes();
 
 //    t.printDfs();
 
