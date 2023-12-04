@@ -303,7 +303,7 @@ private:
         for (int i = 0; i < size; i++) {
             char *currSuffix = substring(i);
 
-            Node* curr = getMaxCommonPrefixLengthNode(root, "", 0, currSuffix);
+            Node* curr = getMaxCommonPrefixLengthNode(root, "", currSuffix);
             int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, mxLastReached);
 
             // if the node is leaf
@@ -358,7 +358,7 @@ private:
         }
     }
 
-    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, int lastMax, char* currSuffix) {
+    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char* currSuffix) {
         if (curr->adj.linkedListSize() == 0) {
             return curr;
         }
@@ -381,43 +381,10 @@ private:
         } else {
             char* newLast = merge(last, substring(foundNode->suffNum, getMinSuffNum(foundNode->adj)));
             this->mxLastReached = newLast;
-            return getMaxCommonPrefixLengthNode(foundNode, newLast, mx, currSuffix);
+            return getMaxCommonPrefixLengthNode(foundNode, newLast, currSuffix);
         }
     }
 
-//    void insert(char *s) {
-//        root = new Node();
-//        for (int i = 0; i < size; i++) {
-//            Node *curr = root;
-//
-//            for (int j = i; j < size; j++) {
-//                bool found = 0;
-//                Node **arr = curr->adj.getArray();
-//                for (int k = 0; k < curr->adj.linkedListSize(); k++) {
-//                    if (s[j] == s[arr[k]->suffNum]) {
-//                        found = 1;
-//                        curr = arr[k];
-//                        break;
-//                    }
-//                }
-//                if (!found) {
-//                    Node *node = new Node();
-//                    node->suffNum = j;
-//                    curr->adj.insert(node);
-//                    curr = node;
-//                }
-//
-//                if (j == size - 1) {
-//                    curr->leafSuffNum = i;
-//                }
-//            }
-//        }
-//
-//        // delete internal nodes that have only one child
-//
-//        root->removeSingleChildNodes();
-//
-//    }
 };
 
 void printDashes() {
