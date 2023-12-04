@@ -132,25 +132,6 @@ struct Node {
         // Deep copy the adjacency list
         adj = other.adj; // Assuming LinkedList has a proper copy constructor
     }
-
-//    void removeSingleChildNodes() {
-//        if (adj.linkedListSize() == 0) {
-//            return;
-//        }
-//        if (adj.linkedListSize() == 1) {
-//            Node *child = adj.getArray()[0];
-//            adj.clear();
-//            leafSuffNum = child->leafSuffNum;
-//            this->adj = child->adj;
-//            delete child;
-//            removeSingleChildNodes();
-//        } else {
-//            Node **arr = adj.getArray();
-//            for (int i = 0; i < adj.linkedListSize(); i++) {
-//                arr[i]->removeSingleChildNodes();
-//            }
-//        }
-//    }
 };
 
 void LinkedList::copyList(const LinkedList &other){
@@ -269,12 +250,6 @@ public:
         return 0;
     }
 
-    void printCharArray(char arr[]) {
-        for (int i = 0; i < strlen(arr); ++i) {
-            cout << arr[i];
-        }
-    }
-
     void dfs(Node *node) {
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
@@ -387,8 +362,6 @@ private:
         if (curr->adj.linkedListSize() == 0) {
             return curr;
         }
-
-//        char* parentSuffix = merge(last, substring(curr->suffNum, getMinSuffNum(curr->adj)));
 
         int parentMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, last);
         Node *foundNode = nullptr;
