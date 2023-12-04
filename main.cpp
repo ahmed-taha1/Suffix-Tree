@@ -36,6 +36,16 @@ public:
 //        clear();
 //    }
 
+    LinkedList &operator=(const LinkedList &other) {
+        if (this != &other) {
+            clear();
+            copyList(other);
+        }
+        return *this;
+    }
+
+    void copyList(const LinkedList &other);
+
     void insert(Node *val) {
         LinkedListNode *temp = new LinkedListNode;
         temp->val = val;
@@ -114,25 +124,43 @@ struct Node {
         suffNum = num;
     }
 
-    void removeSingleChildNodes() {
-        if (adj.linkedListSize() == 0) {
-            return;
-        }
-        if (adj.linkedListSize() == 1) {
-            Node *child = adj.getArray()[0];
-            adj.clear();
-            leafSuffNum = child->leafSuffNum;
-            this->adj = child->adj;
-            delete child;
-            removeSingleChildNodes();
-        } else {
-            Node **arr = adj.getArray();
-            for (int i = 0; i < adj.linkedListSize(); i++) {
-                arr[i]->removeSingleChildNodes();
-            }
-        }
+    // Deep copy constructor for Node
+    Node(const Node& other) {
+        suffNum = other.suffNum;
+        leafSuffNum = other.leafSuffNum;
+
+        // Deep copy the adjacency list
+        adj = other.adj; // Assuming LinkedList has a proper copy constructor
     }
+
+//    void removeSingleChildNodes() {
+//        if (adj.linkedListSize() == 0) {
+//            return;
+//        }
+//        if (adj.linkedListSize() == 1) {
+//            Node *child = adj.getArray()[0];
+//            adj.clear();
+//            leafSuffNum = child->leafSuffNum;
+//            this->adj = child->adj;
+//            delete child;
+//            removeSingleChildNodes();
+//        } else {
+//            Node **arr = adj.getArray();
+//            for (int i = 0; i < adj.linkedListSize(); i++) {
+//                arr[i]->removeSingleChildNodes();
+//            }
+//        }
+//    }
 };
+
+void LinkedList::copyList(const LinkedList &other){
+    LinkedListNode *otherTemp = other.head;
+
+    while (otherTemp != nullptr) {
+    insert(new Node(*(otherTemp->val))); // Creating a deep copy of Node
+    otherTemp = otherTemp->next;
+    }
+}
 
 ostream &operator<<(ostream &out, Node *&n) {
     out << n->suffNum;
@@ -148,13 +176,14 @@ public:
     Node *root;
     int size;
     char *word;
+    char* mxLastReached;
 
     SuffixTree(char s[]) {
         root = new Node();
         size = strlen(s);
         word = new char[size];
         strcpy(word, s);
-
+        mxLastReached = "";
         insert(s);
     }
 
@@ -232,6 +261,9 @@ public:
         for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i) {
             if (str1[i] != str2[i]) {
                 return i;
+            }
+            if(i == min(strlen(str1), strlen(str2)) - 1){
+                return min(strlen(str1), strlen(str2));
             }
         }
         return 0;
@@ -341,7 +373,42 @@ private:
                     curr->adj.insert(n);
                     curr->adj.insert(oldSubTree);
                 }
+                else{
+                    Node* n = new Node();
+                    n->leafSuffNum = i;
+                    n->suffNum = maxCommonPrefixLength + i;
+                    curr->adj.insert(n);
+                }
             }
+        }
+    }
+
+    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, int lastMax, char* currSuffix) {
+        if (curr->adj.linkedListSize() == 0) {
+            return curr;
+        }
+
+//        char* parentSuffix = merge(last, substring(curr->suffNum, getMinSuffNum(curr->adj)));
+
+        int parentMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, last);
+        Node *foundNode = nullptr;
+        int mx = parentMaxCommonPrefix;
+
+        Node **arr = curr->adj.getArray();
+        for (int i = 0; i < curr->adj.linkedListSize(); i++) {
+            char *currentChildSuffix = merge(last, substring(arr[i]->suffNum, getMinSuffNum(arr[i]->adj)));
+            int childtMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, currentChildSuffix);
+            if (childtMaxCommonPrefix > mx) {
+                mx = childtMaxCommonPrefix;
+                foundNode = arr[i];
+            }
+        }
+        if (parentMaxCommonPrefix == mx) {
+            return curr;
+        } else {
+            char* newLast = merge(last, substring(foundNode->suffNum, getMinSuffNum(foundNode->adj)));
+            this->mxLastReached = newLast;
+            return getMaxCommonPrefixLengthNode(foundNode, newLast, mx, currSuffix);
         }
     }
 
