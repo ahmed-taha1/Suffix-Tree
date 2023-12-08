@@ -36,6 +36,7 @@ public:
 //        clear();
 //    }
 
+    // deep copy the adjacency list
     LinkedList &operator=(const LinkedList &other) {
         if (this != &other) {
             clear();
@@ -124,47 +125,63 @@ struct Node {
         suffNum = num;
     }
 
-    // Deep copy constructor for Node
-    Node(const Node& other) {
+    // deep copy constructor for Node
+    Node(const Node &other) {
         suffNum = other.suffNum;
         leafSuffNum = other.leafSuffNum;
 
-        // Deep copy the adjacency list
-        adj = other.adj; // Assuming LinkedList has a proper copy constructor
+        // deep copy the adjacency list
+        adj = other.adj;
     }
 };
 
-void LinkedList::copyList(const LinkedList &other){
+void LinkedList::copyList(const LinkedList &other) {
     LinkedListNode *otherTemp = other.head;
-
     while (otherTemp != nullptr) {
-    insert(new Node(*(otherTemp->val))); // Creating a deep copy of Node
-    otherTemp = otherTemp->next;
+        insert(new Node(*(otherTemp->val))); // Creating a deep copy of Node
+        otherTemp = otherTemp->next;
     }
 }
 
+// overload output operator to print suffix number from node
 ostream &operator<<(ostream &out, Node *&n) {
     out << n->suffNum;
     return out;
 }
 
+/**
+ * @param n1 Node 1
+ * @param n2 Node 2
+ * @return true if the suffix numbers matched, false otherwise
+ */
 bool equals(Node *n1, Node *n2) {
     return (n1->suffNum == n2->suffNum);
 }
 
 class SuffixTree {
 public:
+    // the start of the tree
     Node *root;
+    // length of the original string
     int size;
+    // the original string
     char *word;
-    char* mxLastReached;
+    char *mxLastReached;
 
+    /**
+     * Suffix tree constructor.
+     * @param s The word to build the tree with
+     */
     SuffixTree(char s[]) {
+        // initialize root
         root = new Node();
+        // initialize size
         size = strlen(s);
+        // initialize word
         word = new char[size];
         strcpy(word, s);
         mxLastReached = "";
+        // build the tree
         insert(s);
     }
 
@@ -172,28 +189,48 @@ public:
         delete root;
     }
 
-
+    /**
+     * This function checks if the substring is present in the string or not, prints all suffix start positions (tree leaves) for it.
+     * @param str The substring.
+     */
     void Search(char *str) {
+        // updated to true if the substring is found
         bool found = 0;
+        // start searching for str
         printMatching(str, root, "", found);
-        if (!found)
+        // if not found after traversing the tree, print suitable message.
+        if (!found) {
             cout << "Not found";
+        }
     }
 
+    /**
+     * This method traverses the tree recursively till substring is found, stops at leaves
+     * @param str The substring to find
+     * @param n Starting Node
+     * @param last The prefix of current node
+     * @param found The boolean to be updated if str is found
+     */
     void printMatching(char *str, Node *n, char *last, bool &found) {
+        // if str is found in the current prefix print all suffix start positions (tree leaves) suffix numbers for furrent node
         if (contains(last, str)) {
             found = 1;
             printLeavesFrom(n);
             return;
         }
+        // break if node is leaf, it didn't math any of this path.
         if (n->leafSuffNum != -1) {
             return;
         }
         Node *curr = n;
+        // get all children of current node
         Node **arr = curr->adj.getArray();
         for (int i = 0; i < curr->adj.linkedListSize(); i++) {
+            // find minimum child suffix number
             int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
+            // merge the prefix along the path, with the substring from current node till minimum child
             char *newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
+            // find the suitable child to traverse its subtree
             if (contains(newLast, str) || contains(str, newLast)) {
                 printMatching(str, arr[i], newLast, found);
                 break;
@@ -201,20 +238,54 @@ public:
         }
     }
 
+    /**
+     * Recursive function to print all leaves from subtree rooted at node.
+     * @param node
+     */
+    void printLeavesFrom(Node *node) {
+        if (node->leafSuffNum != -1) {
+            cout << node->leafSuffNum << " ";
+            return;
+        }
+        // loop over the children of node and do the recursive call on each child
+        Node **arr = node->adj.getArray();
+        for (int i = 0; i < node->adj.linkedListSize(); i++) {
+            printLeavesFrom(arr[i]);
+        }
+    }
+
+    /**
+     * @param start index in the word
+     * @return The substring from start index till the end of the string
+     */
     char *substring(int start) {
+        // create string with required substring size
         char *substr = new char[(size - start) + 1];
         strcpy(substr, word + start);
         return substr;
     }
 
+    /**
+     * @param start index in the word
+     * @param end index in the word
+     * @return The substring from start index till end index
+     */
     char *substring(int start, int end) {
+        // calculate required substring size
         int substringLength = end - start;
+        // create string with required substring size
         char *substr = new char[substringLength + 1];
         strncpy(substr, word + start, substringLength);
         substr[substringLength] = '\0';
         return substr;
     }
 
+    /**
+     * Checks if substring is prefix in string
+     * @param query The string
+     * @param sub The substring
+     * @return true if sub is prefix in query, false otherwise
+     */
     bool contains(char *query, char *sub) {
         if (strlen(sub) > strlen(query))
             return false;
@@ -226,15 +297,19 @@ public:
         return true;
     }
 
+    /**
+     * Merges two strings
+     * @param str1
+     * @param str2
+     * @return the concatenation of str1 and str2
+     */
     char *merge(char *str1, char *str2) {
         int len1 = strlen(str1);
         int len2 = strlen(str2);
-
+        // create new string with the required length
         char *result = new char[len1 + len2 + 1];
-
         strcpy(result, str1);
         strcat(result, str2);
-
         return result;
     }
 
@@ -243,7 +318,7 @@ public:
             if (str1[i] != str2[i]) {
                 return i;
             }
-            if(i == min(strlen(str1), strlen(str2)) - 1){
+            if (i == min(strlen(str1), strlen(str2)) - 1) {
                 return min(strlen(str1), strlen(str2));
             }
         }
@@ -264,18 +339,6 @@ public:
 
     void printDfs() {
         dfs(root);
-    }
-
-    void printLeavesFrom(Node *node) {
-        if (node->leafSuffNum != -1) {
-            cout << node->leafSuffNum << " ";
-            return;
-        }
-
-        Node **arr = node->adj.getArray();
-        for (int i = 0; i < node->adj.linkedListSize(); i++) {
-            printLeavesFrom(arr[i]);
-        }
     }
 
 private:
@@ -303,22 +366,20 @@ private:
         for (int i = 0; i < size; i++) {
             char *currSuffix = substring(i);
 
-            Node* curr = getMaxCommonPrefixLengthNode(root, "", currSuffix);
+            Node *curr = getMaxCommonPrefixLengthNode(root, "", currSuffix);
             int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, mxLastReached);
 
             // if the node is leaf
-            if(maxCommonPrefixLength == 0){
-                Node* n1 = new Node();
+            if (maxCommonPrefixLength == 0) {
+                Node *n1 = new Node();
                 n1->leafSuffNum = i;
                 n1->suffNum = maxCommonPrefixLength + i;
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
 
-            }
-
-            else if(curr->adj.linkedListSize() == 0){
-                Node* n1 = new Node();
-                Node* n2 = new Node();
+            } else if (curr->adj.linkedListSize() == 0) {
+                Node *n1 = new Node();
+                Node *n2 = new Node();
                 n1->leafSuffNum = curr->leafSuffNum;
                 n2->leafSuffNum = i;
 
@@ -328,11 +389,10 @@ private:
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
                 curr->adj.insert(n2);
-            }
-
-            else{
-                if(maxCommonPrefixLength < getMinSuffNum(curr->adj) - curr->suffNum){   // TODO check if it gives negative values
-                    Node* oldSubTree = new Node();
+            } else {
+                if (maxCommonPrefixLength <
+                    getMinSuffNum(curr->adj) - curr->suffNum) {   // TODO check if it gives negative values
+                    Node *oldSubTree = new Node();
                     oldSubTree->adj = LinkedList(curr->adj);
                     curr->adj.clear();
                     oldSubTree->suffNum = maxCommonPrefixLength + curr->suffNum;
@@ -341,15 +401,14 @@ private:
                     curr->leafSuffNum = -1;
                     oldSubTree->leafSuffNum = -1;
 
-                    Node* n = new Node();
+                    Node *n = new Node();
                     n->suffNum = i + maxCommonPrefixLength;
                     n->leafSuffNum = i;
 
                     curr->adj.insert(n);
                     curr->adj.insert(oldSubTree);
-                }
-                else{
-                    Node* n = new Node();
+                } else {
+                    Node *n = new Node();
                     n->leafSuffNum = i;
                     n->suffNum = maxCommonPrefixLength + i;
                     curr->adj.insert(n);
@@ -358,7 +417,7 @@ private:
         }
     }
 
-    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char* currSuffix) {
+    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char *currSuffix) {
         if (curr->adj.linkedListSize() == 0) {
             return curr;
         }
@@ -379,7 +438,7 @@ private:
         if (parentMaxCommonPrefix == mx) {
             return curr;
         } else {
-            char* newLast = merge(last, substring(foundNode->suffNum, getMinSuffNum(foundNode->adj)));
+            char *newLast = merge(last, substring(foundNode->suffNum, getMinSuffNum(foundNode->adj)));
             this->mxLastReached = newLast;
             return getMaxCommonPrefixLengthNode(foundNode, newLast, currSuffix);
         }
