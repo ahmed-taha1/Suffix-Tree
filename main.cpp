@@ -187,6 +187,7 @@ private:
                 break;
             }
         }
+        delete[] arr;
     }
 
     /**
@@ -203,12 +204,10 @@ private:
         Node **arr = node->adj.getArray();
         // do the recursive call on each child
         for (int i = 0; i < node->adj.linkedListSize(); i++) printLeavesFrom(arr[i]);
+        delete[] arr;
     }
 
-    /**
-     * @param start index
-     * @return The substring from start index till the end of the string
-     */
+    // return The substring from start index till the end of the string
     char *substring(int start)
     {
         char *substr = new char[(size - start) + 1]; // string with required size
@@ -216,11 +215,7 @@ private:
         return substr;
     }
 
-    /**
-     * @param start index
-     * @param end index
-     * @return The substring from start index till end index
-     */
+    // return The substring from start index till end index exclusive
     char *substring(int start, int end)
     {
         int substringLength = end - start; // required substring size
@@ -344,6 +339,7 @@ private:
                     curr->adj.insert(n);
                 }
             }
+            delete currSuffix;
         }
     }
 
@@ -391,7 +387,9 @@ private:
                 mx = childtMaxCommonPrefix;
                 foundNode = arr[i];
             }
+            delete currentChildSuffix;
         }
+        delete[] arr;
         // if the parent common prefix is greater than it's children return the parent
         if (parentMaxCommonPrefix == mx) return curr;
         // else if there is a child has common prefix greater than the parent
