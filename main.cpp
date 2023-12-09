@@ -4,11 +4,11 @@
 using namespace std;
 struct Node;
 
-struct LinkedListNode {
+struct LLNode {
     Node *val;
-    LinkedListNode *next;
+    LLNode *next;
 
-    LinkedListNode()
+    LLNode()
     {
         val = nullptr;
         next = nullptr;
@@ -17,8 +17,8 @@ struct LinkedListNode {
 
 class LinkedList {
 protected:
-    LinkedListNode *head;
-    LinkedListNode *tail;
+    LLNode *head;
+    LLNode *tail;
     int size;
 public:
     LinkedList()
@@ -28,7 +28,6 @@ public:
     }
     void copyList(const LinkedList &other);
 
-    // deep copy the adjacency list
     LinkedList &operator=(const LinkedList &other)
     {
         if (this != &other)
@@ -41,7 +40,7 @@ public:
 
     void insert(Node *val)
     {
-        LinkedListNode *temp = new LinkedListNode;
+        LLNode *temp = new LLNode;
         temp->val = val;
         temp->next = nullptr;
         if (head == nullptr) head = tail = temp;
@@ -61,7 +60,7 @@ public:
             return new Node *[0];
         }
         Node **arr = new Node *[size];
-        LinkedListNode *temp = head;
+        LLNode *temp = head;
         for (int i = 0; i < size; i++)
         {
             arr[i] = temp->val;
@@ -79,7 +78,7 @@ public:
     {
         while (head != nullptr)
         {
-            LinkedListNode *temp = head;
+            LLNode *temp = head;
             head = head->next;
             delete temp;
             size--;
@@ -99,21 +98,21 @@ struct Node {
         suffNum = -1;
         leafSuffNum = -1;
     }
-    // deep copy constructor for Node
+
     Node(const Node &other)
     {
         suffNum = other.suffNum;
         leafSuffNum = other.leafSuffNum;
-        adj = other.adj; // deep copy the adjacency list
+        adj = other.adj;
     }
 };
 
 void LinkedList::copyList(const LinkedList &other)
 {
-    LinkedListNode *otherTemp = other.head;
+    LLNode *otherTemp = other.head;
     while (otherTemp != nullptr)
     {
-        insert(new Node(*(otherTemp->val))); // deep copy of Node
+        insert(new Node(*(otherTemp->val)));
         otherTemp = otherTemp->next;
     }
 }
@@ -128,21 +127,13 @@ public:
     char *word;
     char *mxLastReached;
 
-    /**
-     * Constructor.
-     * @param s The word to build the tree with
-     */
     SuffixTree(char s[])
     {
-        // initialize root
         root = new Node();
-        // initialize size
         size = strlen(s);
-        // initialize word
         word = new char[size];
         strcpy(word, s);
         mxLastReached = "";
-        // build the tree
         insert();
     }
 
@@ -151,17 +142,13 @@ public:
         delete root;
     }
 
-    /**
-     * This function checks if the str is found.
-     * @param str The substring.
-     */
     void Search(char *str)
     {
-        // updated to true if the substring is found
+        // updated to true if the str is found
         bool found = 0;
         // start searching for str
         printMatching(str, root, "", found);
-        // if not found after traversing the tree, print suitable message.
+        // if not found after searching, print suitable message.
         if (!found) cout << "Not found";
         cout << '\n';
     }
