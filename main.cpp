@@ -4,19 +4,14 @@
 #include <iostream>
 
 using namespace std;
-
 struct Node;
-
-bool equals(Node *n1, Node *n2);
-
-ostream &operator<<(ostream &out, Node *&n);
 
 struct LinkedListNode {
     Node *val;
     LinkedListNode *next;
 
     LinkedListNode() {
-        val = 0;
+        val = nullptr;
         next = nullptr;
     }
 };
@@ -31,10 +26,7 @@ public:
         head = tail = nullptr;
         size = 0;
     }
-
-//    ~LinkedList() {
-//        clear();
-//    }
+    void copyList(const LinkedList &other);
 
     // deep copy the adjacency list
     LinkedList &operator=(const LinkedList &other) {
@@ -44,8 +36,6 @@ public:
         }
         return *this;
     }
-
-    void copyList(const LinkedList &other);
 
     void insert(Node *val) {
         LinkedListNode *temp = new LinkedListNode;
@@ -58,17 +48,6 @@ public:
             tail = temp;
         }
         size++;
-    }
-
-    Node *getElement(Node *&val) {
-        LinkedListNode *temp = head;
-        while (temp != nullptr) {
-            if (equals(temp->val, val)) {
-                return temp->val;
-            }
-            temp = temp->next;
-        }
-        return NULL;
     }
 
     Node **getArray() {
@@ -99,16 +78,6 @@ public:
         head = tail = nullptr;
         size = 0;
     }
-
-    void print() const {
-        LinkedListNode *temp = head;
-        while (temp != nullptr) {
-            cout << temp->val << " ";
-            temp = temp->next;
-        }
-        cout << endl;
-    }
-
 };
 
 struct Node {
@@ -120,11 +89,6 @@ struct Node {
         suffNum = -1;
         leafSuffNum = -1;
     }
-
-    Node(int num) {
-        suffNum = num;
-    }
-
     // deep copy constructor for Node
     Node(const Node &other) {
         suffNum = other.suffNum;
@@ -141,12 +105,6 @@ void LinkedList::copyList(const LinkedList &other) {
         insert(new Node(*(otherTemp->val))); // Creating a deep copy of Node
         otherTemp = otherTemp->next;
     }
-}
-
-// overload output operator to print suffix number from node
-ostream &operator<<(ostream &out, Node *&n) {
-    out << n->suffNum;
-    return out;
 }
 
 /**
@@ -203,6 +161,13 @@ public:
             cout << "Not found";
         }
     }
+
+
+    void printDfs() {
+        dfs(root);
+    }
+
+private:
 
     /**
      * This method traverses the tree recursively till substring is found, stops at leaves
@@ -313,18 +278,6 @@ public:
         return result;
     }
 
-    int getMaxCommonPrefixLength(char *str1, char *str2) {
-        for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i) {
-            if (str1[i] != str2[i]) {
-                return i;
-            }
-            if (i == min(strlen(str1), strlen(str2)) - 1) {
-                return min(strlen(str1), strlen(str2));
-            }
-        }
-        return 0;
-    }
-
     void dfs(Node *node) {
         Node **arr = node->adj.getArray();
         for (int i = 0; i < node->adj.linkedListSize(); i++) {
@@ -337,13 +290,14 @@ public:
         }
     }
 
-    void printDfs() {
-        dfs(root);
-    }
-
-private:
+    /**
+     * find the min suffix number from the adj list
+     * @param adj adjacency list
+     * @return min suffix number from the list
+     */
     int getMinSuffNum(LinkedList adj) {
         Node **arr = adj.getArray();
+        // initially set the ret with original word size bcs if not found that's mean this adj list related to leaf node so we will return the size of the word
         int ret = this->size;
         for (int i = 0; i < adj.linkedListSize(); i++) {
             ret = min(arr[i]->suffNum, ret);
@@ -351,25 +305,23 @@ private:
         return ret;
     }
 
-    static bool isSubstrExist(const char *s1, char *s2) {
-        if (strlen(s2) > strlen(s1))
-            return false;
-        for (int i = 0; i < strlen(s2); i++) {
-            if (s1[i] != s2[i])
-                return false;
-        }
-        return true;
-    }
-
+    /**
+     * insert the string to the tree
+     * @param s the full string which is got at the tree constructor
+     */
     void insert(char *s) {
         root = new Node();
         for (int i = 0; i < size; i++) {
+            // at each iteration generate suffixes from the starting i
             char *currSuffix = substring(i);
-
+            // get the node from the tree which has the max common prefix length with the current suffix
             Node *curr = getMaxCommonPrefixLengthNode(root, "", currSuffix);
+            // get the max common prefix length between max string reached from the previous call and current suffix which we want to insert
             int maxCommonPrefixLength = getMaxCommonPrefixLength(currSuffix, mxLastReached);
 
-            // if the node is leaf
+            // check if there is no common prefix length
+            // occur only at the root
+            // just insert the new node with it's properties and make the root's leaf suffix num = -1 (which is at curr, got from the function call)
             if (maxCommonPrefixLength == 0) {
                 Node *n1 = new Node();
                 n1->leafSuffNum = i;
@@ -377,37 +329,42 @@ private:
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
 
-            } else if (curr->adj.linkedListSize() == 0) {
+            } // if the node is leaf, split it into two nodes
+            else if (curr->adj.linkedListSize() == 0) {
+                // create two nodes
                 Node *n1 = new Node();
                 Node *n2 = new Node();
+                // first one has the same leaf suffix number, second one is the one that we want to insert so it's leaf suff num will equal i
                 n1->leafSuffNum = curr->leafSuffNum;
                 n2->leafSuffNum = i;
 
+                // assign the suffix numbers by adding the max common prefix length to their leaf suffix number
                 n1->suffNum = n1->leafSuffNum + maxCommonPrefixLength;
                 n2->suffNum = maxCommonPrefixLength + i;
 
+                // curr now is not a leaf so make its property to -1 , add the two nodes to curr
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
                 curr->adj.insert(n2);
-            } else {
+            }
+            // if the node is not leaf
+            else {
+                // if the max common prefix found is less than node string length (it's min child suffix number - it's suffix number) that's mean they aren't share the same prefix
                 if (maxCommonPrefixLength <
-                    getMinSuffNum(curr->adj) - curr->suffNum) {   // TODO check if it gives negative values
+                    getMinSuffNum(curr->adj) - curr->suffNum) {
                     Node *oldSubTree = new Node();
-                    oldSubTree->adj = LinkedList(curr->adj);
-                    curr->adj.clear();
-                    oldSubTree->suffNum = maxCommonPrefixLength + curr->suffNum;
-
-                    // mabye deleted
-                    curr->leafSuffNum = -1;
-                    oldSubTree->leafSuffNum = -1;
-
+                    oldSubTree->adj = LinkedList(curr->adj);    // copy the old subtree from the curr
+                    curr->adj.clear();  // remove it from the curr
+                    oldSubTree->suffNum = maxCommonPrefixLength + curr->suffNum; // make it's suffix number = max common length + curr suffix number
                     Node *n = new Node();
                     n->suffNum = i + maxCommonPrefixLength;
                     n->leafSuffNum = i;
-
+                    // insert them to the current node so we splitted it to itself and the new node
                     curr->adj.insert(n);
                     curr->adj.insert(oldSubTree);
-                } else {
+                }
+                // if they shar the same prefix normal case, just insert the node with its leaf suffix number to the parent adj list, make its suffix number = max  prefix common length + suff number
+                else {
                     Node *n = new Node();
                     n->leafSuffNum = i;
                     n->suffNum = maxCommonPrefixLength + i;
@@ -417,15 +374,43 @@ private:
         }
     }
 
+    /**
+     * get the max common prefix length from the starting for two strings
+     * @param str1
+     * @param str2
+     * @return max common prefix length between them
+     */
+    int getMaxCommonPrefixLength(char *str1, char *str2) {
+        for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i) {
+            if (str1[i] != str2[i]) {
+                return i;
+            }
+            // full matching
+            if (i == min(strlen(str1), strlen(str2)) - 1) {
+                return min(strlen(str1), strlen(str2));
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * searching for the max common prefix length node with a specific suffix
+     * @param curr initially started with root
+     * @param last updatable string when we go depth at each node by adding to it , the current node substring
+     * @param currSuffix the suffix that we want to search for
+     * @return max common prefix length node with the current suffix
+     */
     Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char *currSuffix) {
         if (curr->adj.linkedListSize() == 0) {
             return curr;
         }
 
+        // store parent common prefix
         int parentMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, last);
         Node *foundNode = nullptr;
         int mx = parentMaxCommonPrefix;
 
+        // find the greatest common prefix between curr children
         Node **arr = curr->adj.getArray();
         for (int i = 0; i < curr->adj.linkedListSize(); i++) {
             char *currentChildSuffix = merge(last, substring(arr[i]->suffNum, getMinSuffNum(arr[i]->adj)));
@@ -435,15 +420,20 @@ private:
                 foundNode = arr[i];
             }
         }
+        // if the parent common prefix is greater than it's children return the parent
         if (parentMaxCommonPrefix == mx) {
             return curr;
-        } else {
+        }
+        // else if there is a child has common prefix greater than the parent
+        // add to the last string this child substring that child stores and go in depth to this node
+        else {
             char *newLast = merge(last, substring(foundNode->suffNum, getMinSuffNum(foundNode->adj)));
+            // store the max reached string
             this->mxLastReached = newLast;
+            // traverse depth
             return getMaxCommonPrefixLengthNode(foundNode, newLast, currSuffix);
         }
     }
-
 };
 
 void printDashes() {
@@ -482,8 +472,6 @@ int main() {
     t3.Search("Motaz"); // NF
     cout << '\n';
     printDashes();
-
-//    t.printDfs();
 
     return 0;
 }
