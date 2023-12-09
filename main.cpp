@@ -44,8 +44,7 @@ public:
         LinkedListNode *temp = new LinkedListNode;
         temp->val = val;
         temp->next = nullptr;
-        if (head == nullptr)
-            head = tail = temp;
+        if (head == nullptr) head = tail = temp;
         else
         {
             tail->next = temp;
@@ -105,9 +104,7 @@ struct Node {
     {
         suffNum = other.suffNum;
         leafSuffNum = other.leafSuffNum;
-
-        // deep copy the adjacency list
-        adj = other.adj;
+        adj = other.adj; // deep copy the adjacency list
     }
 };
 
@@ -116,23 +113,23 @@ void LinkedList::copyList(const LinkedList &other)
     LinkedListNode *otherTemp = other.head;
     while (otherTemp != nullptr)
     {
-        insert(new Node(*(otherTemp->val))); // Creating a deep copy of Node
+        insert(new Node(*(otherTemp->val))); // deep copy of Node
         otherTemp = otherTemp->next;
     }
 }
 
 class SuffixTree {
 public:
-    // the start of the tree
+    // the root
     Node *root;
-    // length of the original string
+    // length of the string
     int size;
-    // the original string
+    // the string
     char *word;
     char *mxLastReached;
 
     /**
-     * Suffix tree constructor.
+     * Constructor.
      * @param s The word to build the tree with
      */
     SuffixTree(char s[])
@@ -146,7 +143,7 @@ public:
         strcpy(word, s);
         mxLastReached = "";
         // build the tree
-        insert(s);
+        insert();
     }
 
     ~SuffixTree()
@@ -155,7 +152,7 @@ public:
     }
 
     /**
-     * This function checks if the substring is present in the string or not, prints all suffix start positions (tree leaves) for it.
+     * This function checks if the str is found.
      * @param str The substring.
      */
     void Search(char *str)
@@ -165,38 +162,35 @@ public:
         // start searching for str
         printMatching(str, root, "", found);
         // if not found after traversing the tree, print suitable message.
-        if (!found)
-            cout << "Not found";
+        if (!found) cout << "Not found";
         cout << '\n';
     }
 
 private:
     /**
-     * This method traverses the tree recursively till substring is found, stops at leaves
-     * @param str The substring to find
+     * This method traverses the tree recursively till substring is found
+     * @param str The substring
      * @param n Starting Node
-     * @param last The prefix of current node
-     * @param found The boolean to be updated if str is found
+     * @param last Prefix of current node
+     * @param found The boolean, updated if str is found
      */
     void printMatching(char *str, Node *n, char *last, bool &found)
     {
-        // if str is found in the current prefix print all suffix start positions (tree leaves) suffix numbers for furrent node
+        // if str is found in the current prefix
         if (contains(last, str))
         {
             found = 1;
             printLeavesFrom(n);
             return;
         }
-        // break if node is leaf, it didn't math any of this path.
-        if (n->leafSuffNum != -1)
-            return;
+        // break if node is leaf, it didn't match any of this path.
+        if (n->leafSuffNum != -1) return;
         Node *curr = n;
-        // get all children of current node
-        Node **arr = curr->adj.getArray();
+        Node **arr = curr->adj.getArray(); // get all children of current node
         for (int i = 0; i < curr->adj.linkedListSize(); i++)
         {
             // find minimum child suffix number
-            int minSuffFromChilds = getMinSuffNum(arr[i]->adj); // newlast + substring(suffNum, minSuffFromChilds)
+            int minSuffFromChilds = getMinSuffNum(arr[i]->adj);
             // merge the prefix along the path, with the substring from current node till minimum child
             char *newLast = merge(last, substring(arr[i]->suffNum, minSuffFromChilds));
             // find the suitable child to traverse its subtree
@@ -219,54 +213,48 @@ private:
             cout << node->leafSuffNum << " ";
             return;
         }
-        // loop over the children of node and do the recursive call on each child
         Node **arr = node->adj.getArray();
-        for (int i = 0; i < node->adj.linkedListSize(); i++)
-            printLeavesFrom(arr[i]);
+        // do the recursive call on each child
+        for (int i = 0; i < node->adj.linkedListSize(); i++) printLeavesFrom(arr[i]);
     }
 
     /**
-     * @param start index in the word
+     * @param start index
      * @return The substring from start index till the end of the string
      */
     char *substring(int start)
     {
-        // create string with required substring size
-        char *substr = new char[(size - start) + 1];
+        char *substr = new char[(size - start) + 1]; // string with required size
         strcpy(substr, word + start);
         return substr;
     }
 
     /**
-     * @param start index in the word
-     * @param end index in the word
+     * @param start index
+     * @param end index
      * @return The substring from start index till end index
      */
     char *substring(int start, int end)
     {
-        // calculate required substring size
-        int substringLength = end - start;
-        // create string with required substring size
-        char *substr = new char[substringLength + 1];
+        int substringLength = end - start; // required substring size
+        char *substr = new char[substringLength + 1]; // string with required size
         strncpy(substr, word + start, substringLength);
         substr[substringLength] = '\0';
         return substr;
     }
 
     /**
-     * Checks if substring is prefix in string
+     * Checks if sub is prefix in query
      * @param query The string
      * @param sub The substring
      * @return true if sub is prefix in query, false otherwise
      */
     bool contains(char *query, char *sub)
     {
-        if (strlen(sub) > strlen(query))
-            return false;
+        if (strlen(sub) > strlen(query)) return false;
         for (int i = 0; i < strlen(sub); ++i)
         {
-            if (query[i] != sub[i])
-                return false;
+            if (query[i] != sub[i]) return false;
         }
         return true;
     }
@@ -281,8 +269,7 @@ private:
     {
         int len1 = strlen(str1);
         int len2 = strlen(str2);
-        // create new string with the required length
-        char *result = new char[len1 + len2 + 1];
+        char *result = new char[len1 + len2 + 1]; // create new string with the required length
         strcpy(result, str1);
         strcat(result, str2);
         return result;
@@ -298,16 +285,14 @@ private:
         Node **arr = adj.getArray();
         // initially set the ret with original word size bcs if not found that's mean this adj list related to leaf node so we will return the size of the word
         int ret = this->size;
-        for (int i = 0; i < adj.linkedListSize(); i++)
-            ret = min(arr[i]->suffNum, ret);
+        for (int i = 0; i < adj.linkedListSize(); i++) ret = min(arr[i]->suffNum, ret);
         return ret;
     }
 
     /**
      * insert the string to the tree
-     * @param s the full string which is got at the tree constructor
      */
-    void insert(char *s)
+    void insert()
     {
         root = new Node();
         for (int i = 0; i < size; i++)
@@ -321,7 +306,7 @@ private:
 
             // check if there is no common prefix length
             // occur only at the root
-            // just insert the new node with it's properties and make the root's leaf suffix num = -1 (which is at curr, got from the function call)
+            // just insert the new node with its properties and make the root's leaf suffix num = -1 (which is at curr, got from the function call)
             if (maxCommonPrefixLength == 0)
             {
                 Node *n1 = new Node();
@@ -329,7 +314,6 @@ private:
                 n1->suffNum = maxCommonPrefixLength + i;
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
-
             } // if the node is leaf, split it into two nodes
             else if (curr->adj.linkedListSize() == 0)
             {
@@ -339,11 +323,9 @@ private:
                 // first one has the same leaf suffix number, second one is the one that we want to insert so it's leaf suff num will equal i
                 n1->leafSuffNum = curr->leafSuffNum;
                 n2->leafSuffNum = i;
-
                 // assign the suffix numbers by adding the max common prefix length to their leaf suffix number
                 n1->suffNum = n1->leafSuffNum + maxCommonPrefixLength;
                 n2->suffNum = maxCommonPrefixLength + i;
-
                 // curr now is not a leaf so make its property to -1 , add the two nodes to curr
                 curr->leafSuffNum = -1;
                 curr->adj.insert(n1);
@@ -388,11 +370,9 @@ private:
     {
         for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i)
         {
-            if (str1[i] != str2[i])
-                return i;
+            if (str1[i] != str2[i]) return i;
             // full matching
-            if (i == min(strlen(str1), strlen(str2)) - 1)
-                return min(strlen(str1), strlen(str2));
+            if (i == min(strlen(str1), strlen(str2)) - 1) return min(strlen(str1), strlen(str2));
         }
         return 0;
     }
@@ -406,8 +386,7 @@ private:
      */
     Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char *currSuffix)
     {
-        if (curr->adj.linkedListSize() == 0)
-            return curr;
+        if (curr->adj.linkedListSize() == 0) return curr;
 
         // store parent common prefix
         int parentMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, last);
@@ -427,8 +406,7 @@ private:
             }
         }
         // if the parent common prefix is greater than it's children return the parent
-        if (parentMaxCommonPrefix == mx)
-            return curr;
+        if (parentMaxCommonPrefix == mx) return curr;
         // else if there is a child has common prefix greater than the parent
         // add to the last string this child substring that child stores and go in depth to this node
         else
@@ -449,10 +427,10 @@ void printDashes()
 
 int main()
 {
-    SuffixTree t("bananabanaba$");
-    t.Search("ana"); // 1 3 7
-    t.Search("naba"); // 4 8
-    t.Search("kbanana$"); // NF
+    SuffixTree t1("bananabanaba$");
+    t1.Search("ana"); // 1 3 7
+    t1.Search("naba"); // 4 8
+    t1.Search("kbanana$"); // NF
     printDashes();
 
     SuffixTree t2("AhmedTaha$");
@@ -465,5 +443,47 @@ int main()
     t3.Search("ssef"); // 3
     t3.Search("Moataz"); // 7
     t3.Search("Motaz"); // NF
+    printDashes();
+
+    SuffixTree t4("IsmailMagdy$");
+    t4.Search("a"); // 3 7
+    t4.Search("Ma$"); // NF
+    t4.Search("Mag"); // 6
+    printDashes();
+
+    SuffixTree t5("Hello World$");
+    t5.Search(" "); // 5
+    t5.Search("Hell"); // 0
+    t5.Search("o"); // 4 7
+    printDashes();
+
+    SuffixTree t6("papatpaptpa$");
+    t6.Search("p"); // 7 0 5 2 9
+    t6.Search("pap"); // 0 5
+    t6.Search("pa"); // 0 5 2 9
+    printDashes();
+
+    SuffixTree t7("papatpappa$");
+    t7.Search("a"); // 1 6 3 9
+    t7.Search("pap"); // 0 5
+    t7.Search("apt"); // NF
+    printDashes();
+
+    SuffixTree t8("Tomorrow's lab will be cancelled and will schedule another slot with you.$");
+    t8.Search("will"); // 15 37
+    t8.Search("you"); // 69
+    t8.Search("ll"); // 17 39 28
+    printDashes();
+
+    SuffixTree t9("AdvancedDataStructure");
+    t9.Search("ll"); // NF
+    t9.Search("D"); // 8
+    t9.Search("c"); // 5 16
+    printDashes();
+
+    SuffixTree t10("Assignment 1 -> suffix tree");
+    t10.Search("s"); // 1 2 16
+    t10.Search("D"); // NF
+    t10.Search("ee"); // 25
     printDashes();
 }
