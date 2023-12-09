@@ -1,5 +1,3 @@
-#include <cstdlib>
-#include <cstdio>
 #include <cstring>
 #include <iostream>
 
@@ -10,7 +8,8 @@ struct LinkedListNode {
     Node *val;
     LinkedListNode *next;
 
-    LinkedListNode() {
+    LinkedListNode()
+    {
         val = nullptr;
         next = nullptr;
     }
@@ -22,14 +21,16 @@ protected:
     LinkedListNode *tail;
     int size;
 public:
-    LinkedList() {
+    LinkedList()
+    {
         head = tail = nullptr;
         size = 0;
     }
     void copyList(const LinkedList &other);
 
     // deep copy the adjacency list
-    LinkedList &operator=(const LinkedList &other) {
+    LinkedList &operator=(const LinkedList &other)
+    {
         if (this != &other)
         {
             clear();
@@ -38,7 +39,8 @@ public:
         return *this;
     }
 
-    void insert(Node *val) {
+    void insert(Node *val)
+    {
         LinkedListNode *temp = new LinkedListNode;
         temp->val = val;
         temp->next = nullptr;
@@ -52,7 +54,8 @@ public:
         size++;
     }
 
-    Node **getArray() {
+    Node **getArray()
+    {
         if (size < 0)
         {
             size = 0;
@@ -68,16 +71,18 @@ public:
         return arr;
     }
 
-    int linkedListSize() const {
+    int linkedListSize() const
+    {
         return size;
     };
 
-    void clear() {
+    void clear()
+    {
         while (head != nullptr)
         {
             LinkedListNode *temp = head;
             head = head->next;
-//            delete temp;
+            delete temp;
             size--;
         }
         head = tail = nullptr;
@@ -90,12 +95,14 @@ struct Node {
     int suffNum;
     int leafSuffNum;
 
-    Node() {
+    Node()
+    {
         suffNum = -1;
         leafSuffNum = -1;
     }
     // deep copy constructor for Node
-    Node(const Node &other) {
+    Node(const Node &other)
+    {
         suffNum = other.suffNum;
         leafSuffNum = other.leafSuffNum;
 
@@ -104,7 +111,8 @@ struct Node {
     }
 };
 
-void LinkedList::copyList(const LinkedList &other) {
+void LinkedList::copyList(const LinkedList &other)
+{
     LinkedListNode *otherTemp = other.head;
     while (otherTemp != nullptr)
     {
@@ -127,7 +135,8 @@ public:
      * Suffix tree constructor.
      * @param s The word to build the tree with
      */
-    SuffixTree(char s[]) {
+    SuffixTree(char s[])
+    {
         // initialize root
         root = new Node();
         // initialize size
@@ -140,7 +149,8 @@ public:
         insert(s);
     }
 
-    ~SuffixTree() {
+    ~SuffixTree()
+    {
         delete root;
     }
 
@@ -148,7 +158,8 @@ public:
      * This function checks if the substring is present in the string or not, prints all suffix start positions (tree leaves) for it.
      * @param str The substring.
      */
-    void Search(char *str) {
+    void Search(char *str)
+    {
         // updated to true if the substring is found
         bool found = 0;
         // start searching for str
@@ -167,7 +178,8 @@ private:
      * @param last The prefix of current node
      * @param found The boolean to be updated if str is found
      */
-    void printMatching(char *str, Node *n, char *last, bool &found) {
+    void printMatching(char *str, Node *n, char *last, bool &found)
+    {
         // if str is found in the current prefix print all suffix start positions (tree leaves) suffix numbers for furrent node
         if (contains(last, str))
         {
@@ -200,7 +212,8 @@ private:
      * Recursive function to print all leaves from subtree rooted at node.
      * @param node
      */
-    void printLeavesFrom(Node *node) {
+    void printLeavesFrom(Node *node)
+    {
         if (node->leafSuffNum != -1)
         {
             cout << node->leafSuffNum << " ";
@@ -216,7 +229,8 @@ private:
      * @param start index in the word
      * @return The substring from start index till the end of the string
      */
-    char *substring(int start) {
+    char *substring(int start)
+    {
         // create string with required substring size
         char *substr = new char[(size - start) + 1];
         strcpy(substr, word + start);
@@ -228,7 +242,8 @@ private:
      * @param end index in the word
      * @return The substring from start index till end index
      */
-    char *substring(int start, int end) {
+    char *substring(int start, int end)
+    {
         // calculate required substring size
         int substringLength = end - start;
         // create string with required substring size
@@ -244,7 +259,8 @@ private:
      * @param sub The substring
      * @return true if sub is prefix in query, false otherwise
      */
-    bool contains(char *query, char *sub) {
+    bool contains(char *query, char *sub)
+    {
         if (strlen(sub) > strlen(query))
             return false;
         for (int i = 0; i < strlen(sub); ++i)
@@ -261,7 +277,8 @@ private:
      * @param str2
      * @return the concatenation of str1 and str2
      */
-    char *merge(char *str1, char *str2) {
+    char *merge(char *str1, char *str2)
+    {
         int len1 = strlen(str1);
         int len2 = strlen(str2);
         // create new string with the required length
@@ -276,7 +293,8 @@ private:
      * @param adj adjacency list
      * @return min suffix number from the list
      */
-    int getMinSuffNum(LinkedList adj) {
+    int getMinSuffNum(LinkedList adj)
+    {
         Node **arr = adj.getArray();
         // initially set the ret with original word size bcs if not found that's mean this adj list related to leaf node so we will return the size of the word
         int ret = this->size;
@@ -289,7 +307,8 @@ private:
      * insert the string to the tree
      * @param s the full string which is got at the tree constructor
      */
-    void insert(char *s) {
+    void insert(char *s)
+    {
         root = new Node();
         for (int i = 0; i < size; i++)
         {
@@ -334,8 +353,7 @@ private:
             else
             {
                 // if the max common prefix found is less than node string length (it's min child suffix number - it's suffix number) that's mean they aren't share the same prefix
-                if (maxCommonPrefixLength <
-                    getMinSuffNum(curr->adj) - curr->suffNum)
+                if (maxCommonPrefixLength < getMinSuffNum(curr->adj) - curr->suffNum)
                 {
                     Node *oldSubTree = new Node();
                     oldSubTree->adj = LinkedList(curr->adj);    // copy the old subtree from the curr
@@ -366,7 +384,8 @@ private:
      * @param str2
      * @return max common prefix length between them
      */
-    int getMaxCommonPrefixLength(char *str1, char *str2) {
+    int getMaxCommonPrefixLength(char *str1, char *str2)
+    {
         for (int i = 0; i < min(strlen(str1), strlen(str2)); ++i)
         {
             if (str1[i] != str2[i])
@@ -385,11 +404,10 @@ private:
      * @param currSuffix the suffix that we want to search for
      * @return max common prefix length node with the current suffix
      */
-    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char *currSuffix) {
+    Node *getMaxCommonPrefixLengthNode(Node *curr, char *last, char *currSuffix)
+    {
         if (curr->adj.linkedListSize() == 0)
-        {
             return curr;
-        }
 
         // store parent common prefix
         int parentMaxCommonPrefix = getMaxCommonPrefixLength(currSuffix, last);
@@ -424,11 +442,13 @@ private:
     }
 };
 
-void printDashes() {
+void printDashes()
+{
     cout << "--------------------" << endl;
 }
 
-int main() {
+int main()
+{
     SuffixTree t("bananabanaba$");
     t.Search("ana"); // 1 3 7
     t.Search("naba"); // 4 8
